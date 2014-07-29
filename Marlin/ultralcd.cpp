@@ -1059,10 +1059,10 @@ void lcd_level_bed()
         	//lcd_implementation_drawmenu_generic(1, PSTR("Punto "), ' ',' ');
         	char pointInt[10];
 			sprintf(pointInt, "%d", pageShowInfo);
-			char pointString[30] = "Point ";
-			strcat(pointString, pointInt);
-SERIAL_ECHOLN(pointString);
-			lcd_implementation_drawmenu_generic(1, pointString, ' ', ' ');
+			//char pointString[30] = "Point ";
+			//strcat(pointString, pointInt);
+//SERIAL_ECHOLN(pointString);
+			lcd_implementation_drawmenu_generic(1, pointInt, ' ', ' ');
         	/*
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_CORNERS));
