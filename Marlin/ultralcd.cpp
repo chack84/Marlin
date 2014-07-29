@@ -19,6 +19,10 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+int filaFlexPreheatHotendTemp;
+int filaFlexPreheatHPBTemp;
+int filaFlexPreheatFanSpeed;
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -424,6 +428,15 @@ void lcd_preheat_abs0()
     setWatch(); // heater sanity check timer
 }
 
+void lcd_preheat_filaflex0()
+{
+    setTargetHotend0(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
 #if TEMP_SENSOR_1 != 0 //2nd extruder preheat
 void lcd_preheat_pla1()
 {
@@ -439,6 +452,15 @@ void lcd_preheat_abs1()
     setTargetHotend1(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex1()
+{
+    setTargetHotend1(filaflexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -459,6 +481,15 @@ void lcd_preheat_abs2()
     setTargetHotend2(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex2()
+{
+    setTargetHotend2(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -486,6 +517,17 @@ void lcd_preheat_abs012()
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
+
+void lcd_preheat_filaflex012()
+{
+    setTargetHotend0(filaFlexPreheatHotendTemp);
+    setTargetHotend1(filaFlexPreheatHotendTemp);
+    setTargetHotend2(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
 #endif //more than one extruder present
 
 void lcd_preheat_pla_bedonly()
@@ -500,6 +542,14 @@ void lcd_preheat_abs_bedonly()
 {
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex_bedonly()
+{
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -544,6 +594,26 @@ static void lcd_preheat_abs_menu()
     END_MENU();
 }
 
+static void lcd_preheat_filaflex_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX0, lcd_preheat_filaflex0);
+#if TEMP_SENSOR_1 != 0 //2 extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX1, lcd_preheat_filaflex1);
+#endif //2 extruder preheat
+#if TEMP_SENSOR_2 != 0 //3 extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX2, lcd_preheat_filaflex2);
+#endif //3 extruder preheat
+#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 //all extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX012, lcd_preheat_filaflex012);
+#endif //2 extruder preheat
+#if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX_BEDONLY, lcd_preheat_filaflex_bedonly);
+#endif
+    END_MENU();
+}
+
 void lcd_cooldown()
 {
     setTargetHotend0(0);
@@ -570,9 +640,11 @@ static void lcd_prepare_menu()
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_FILAFLEX, lcd_preheat_filaflex_menu);
   #else
     MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
     MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX, lcd_preheat_filaflex0);
   #endif
 #endif
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
