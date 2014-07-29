@@ -19,6 +19,13 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+	int  pageShowInfo=0;
+	boolean ChangeScreen=false;
+	void set_pageShowInfo(int value){  pageShowInfo=value;  }
+	void set_ChangeScreen(boolean state) { ChangeScreen=state;}
+#endif
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -765,6 +772,10 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+    //TODO RE-Añadir constantes de nivelar base
+    MENU_ITEM(function, "Nivelar base", lcd_control_level_plate_points);
+#endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
     END_MENU();
 }
@@ -963,6 +974,129 @@ void lcd_sdcard_menu()
     }
     END_MENU();
 }
+
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+void lcd_control_level_plate_points() {
+	setTargetHotend(0,0);
+
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+SERIAL_ECHOLN("Leveling...");
+		currentMenu=lcd_level_bed;
+		fanSpeed = PREHEAT_FAN_SPEED;
+		// TODO IMPLEMENTAR CONTROL M700
+		enquecommand_P(PSTR("M700"));
+		pageShowInfo=0;
+	}
+	else{
+SERIAL_ECHOLN("Temperature too high.");
+		//lcd.clear();
+		lcd_implementation_clear();
+		currentMenu = lcd_level_bed_cooling;
+		fanSpeed = COOLDOWN_FAN_SPEED;
+
+	}
+
+}
+void lcd_level_bed_cooling()
+{
+	while(!lcd_clicked()) {
+		manage_heater();
+		//lcd.setCursor(0, 0);
+		//lcd_printPGM(PSTR(MSG_LP_COOL_1));
+		lcd_printPGM(PSTR(MSG_LP_COOL_1));
+		//lcd.setCursor(0, 1);
+		//lcd_printPGM(PSTR(MSG_LP_COOL_2));
+		lcd_printPGM(PSTR(MSG_LP_COOL_2));
+		/*
+		lcd.setCursor(6, 1);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(itostr3(int(degHotend(0))));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+		lcd.setCursor(0, 3);
+		lcd_printPGM(PSTR(MSG_LP_COOL_3));
+		*/
+		currentMenu = lcd_level_bed_cooling;
+
+		if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+			currentMenu=lcd_control_level_plate_points;
+			fanSpeed = PREHEAT_FAN_SPEED;
+			lcd_quick_feedback();
+			lcd_update();
+			break;
+		}
+	}
+
+	lcd_quick_feedback();
+	if(degHotend(0)>LEVEL_PLATE_TEMP_PROTECTION) {
+		//lcd.clear();
+		lcd_implementation_clear();
+		fanSpeed = COOLDOWN_FAN_SPEED;
+		currentMenu = lcd_status_screen;
+		lcd_implementation_status_screen();
+	}
+}
+void lcd_level_bed()
+{
+    if(ChangeScreen){
+    	//lcd.clear();
+    	lcd_implementation_clear();
+
+        if (pageShowInfo == 0) {
+           //lcd.setCursor(0, 1);
+           //lcd_printPGM(PSTR(MSG_LP_INTRO));
+        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ',' ');
+            lcd_implementation_drawmenu_generic(0, PSTR("Inicio"), ' ', ' ');
+            currentMenu = lcd_level_bed;
+            ChangeScreen=false;
+        }
+        else if (pageShowInfo <= 4) {
+        	//lcd_printPGM(PSTR(MSG_LP_CORNERS));
+        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_CORNERS), ' ',' ');
+        	//lcd_implementation_drawstatic(PSTR(MSG_LP_CORNERS));
+        	lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_CORNERS), ' ', ' ');
+
+        	//char *point = strcat("Punto ", itostr3left(pageShowInfo));
+        	//lcd_implementation_drawmenu_generic(1, PSTR("Punto "), ' ',' ');
+        	char pointInt[10];
+			sprintf(pointInt, "%d", pageShowInfo);
+			char pointString[30] = "Point ";
+			strcat(pointString, pointInt);
+SERIAL_ECHOLN(pointString);
+			lcd_implementation_drawmenu_generic(1, pointString, ' ', ' ');
+        	/*
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_CORNERS));
+          lcd.setCursor(0, 2);
+          lcd_printPGM(PSTR("Punto "));
+          lcd.print(itostr3left(pageShowInfo));*/
+
+		  lcdDrawUpdate = 1;
+          currentMenu = lcd_level_bed;
+          //todo RE-Mirar si podemos quitar el ChangeScreen este
+          ChangeScreen = false;
+        }
+        else {
+          //lcd.setCursor(0, 1);
+          //lcd_printPGM(PSTR(MSG_LP_5));
+        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_5), ' ',' ');
+        	//lcd_implementation_drawstatic(PSTR(MSG_LP_5));
+
+        	lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_5), ' ', ' ');
+        	lcdDrawUpdate = 1;
+
+          ChangeScreen=false;
+          delay(1200);
+
+          encoderPosition = 0;
+          //lcd.clear();
+          lcd_implementation_clear();
+          currentMenu = lcd_status_screen;
+          lcd_status_screen();
+          pageShowInfo=0;
+        }
+    }
+}
+#endif //LEVEL_PLATE_POINTS_CORNERS
 
 #define menu_edit_type(_type, _name, _strFunc, scale) \
     void menu_edit_ ## _name () \
