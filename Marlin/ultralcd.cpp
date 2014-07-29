@@ -585,6 +585,7 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+    MENU_ITEM(submenu, MSG_FILAMENT, lcd_filament_menu);
     END_MENU();
 }
 
@@ -746,6 +747,112 @@ static void lcd_move_menu()
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     //TODO:X,Y,Z,E
     END_MENU();
+}
+
+static void lcd_filament_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    // TODO: RE-Adaptarlo a la dual
+    //#ifdef WITBOX_DUAL
+	//	MENU_ITEM(submenu, MSG_LOAD, select_extruder_load);
+	//	MENU_ITEM(submenu, MSG_UNLOAD, select_extruder_unload);
+	//#else
+		MENU_ITEM(submenu, MSG_LOAD, lcd_load_material_extrud_1);
+		MENU_ITEM(submenu, MSG_UNLOAD, lcd_unload_material_extrud_1);
+	//#endif //WITBOX_DUAL
+    END_MENU();
+}
+
+
+// Load
+static void lcd_load_material_extrud_1()
+{
+    //Settings
+    //FilamentMenuActive = true;
+
+    ////CALENTANDO/HEATING
+    setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
+    fanSpeed = PREHEAT_FAN_SPEED;
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+    int tHotend=int(degHotend(0) + 0.5);
+    int tTarget=int(degTargetHotend(0) + 0.5);
+
+    // TODO: RE-Adaptar menu al tipo de pantalla
+    lcd_implementation_drawmenu_generic(0, PSTR(MSG_HEATING), ' ', ' ');
+    //lcd.setCursor(3, 2);
+    //lcd_printPGM(PSTR(MSG_HEATING));
+    lcd.setCursor(5, 3);
+    lcd.print(LCD_STR_THERMOMETER[0]);
+    lcd.print(itostr3(tHotend));
+    lcd.print('/');
+    lcd.print(itostr3left(tTarget));
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+    if ((degHotend(0) > degTargetHotend(0)) )
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_insert_and_press_1;
+    }
+}
+
+static void lcd_insert_and_press_1()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    active_extruder = 0;
+    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701"));
+    END_MENU();
+}
+static void lcd_abort_preheating_1()
+{
+	//FilamentMenuActive = false;
+	lcd_filament_menu();
+}
+
+// UNLOAD *************************************************************************
+static void lcd_unload_material_extrud_1()
+{
+ //Settings
+
+    //FilamentMenuActive = true;
+    fanSpeed = PREHEAT_FAN_SPEED;
+    ////CALENTANDO/HEATING
+	setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+    // TODO: RE-Adaptar menu al tipo de pantalla
+    int tHotend=int(degHotend(0) + 0.5);
+    int tTarget=int(degTargetHotend(0) + 0.5);
+    lcd.setCursor(3, 2);
+    lcd_printPGM(PSTR(MSG_HEATING));
+    lcd.setCursor(5, 3);
+    lcd.print(LCD_STR_THERMOMETER[0]);
+    lcd.print(itostr3(tHotend));
+    lcd.print('/');
+    lcd.print(itostr3left(tTarget));
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+    if (degHotend(0) > degTargetHotend(0))
+    {
+        lcd_quick_feedback();
+        // TODO: RE-Adaptar a extrusión dual
+//#ifdef WITBOX_DUAL
+//    currentMenu = select_extruder_unload;
+//#else
+	currentMenu = lcd_filament_menu;
+//#endif //WITBOX_DUAL
+	//-- Ejecutar gcode
+	active_extruder = 0;
+	enquecommand_P(PSTR("M702"));
+    }
 }
 
 static void lcd_control_menu()

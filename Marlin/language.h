@@ -187,6 +187,16 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 
+	#define MSG_FILAMENT "Filament"
+	#define MSG_LOAD "Load"
+	#define MSG_UNLOAD "Unload"
+	#define MSG_ABORT "Back"
+	#define MSG_PRE_EXTRUD "Insert & Press"
+	#define MSG_EXTRUDING "Extruding..."
+	#define MSG_LENGTH "Length:"
+	#define MSG_RETRACTING "Retracting"
+
+	#endif //#ifdef WITBOX
 // Serial Console Messages
 
 	#define MSG_Enqueing "enqueing \""
@@ -997,6 +1007,15 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+
+	#define MSG_FILAMENT "Filamento"
+	#define MSG_LOAD "Cargar"
+	#define MSG_UNLOAD "Descargar"
+	#define MSG_ABORT "Atras"
+	#define MSG_PRE_EXTRUD "Insert & Press"
+	#define MSG_EXTRUDING "Extruyendo..."
+	#define MSG_LENGTH "Logitud:"
+	#define MSG_RETRACTING "Retrayendo"
 
 // Serial Console Messages
 
