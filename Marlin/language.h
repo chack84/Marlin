@@ -196,7 +196,6 @@
 	#define MSG_LENGTH "Length:"
 	#define MSG_RETRACTING "Retracting"
 
-	#endif //#ifdef WITBOX
 // Serial Console Messages
 
 	#define MSG_Enqueing "enqueing \""

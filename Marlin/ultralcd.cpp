@@ -55,6 +55,10 @@ static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
+static void lcd_filament_menu();
+static void lcd_unload_material_extrud_1();
+static void lcd_load_material_extrud_1();
+static void lcd_insert_and_press_1();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
@@ -843,7 +847,7 @@ static void lcd_unload_material_extrud_1()
     if (degHotend(0) > degTargetHotend(0))
     {
         lcd_quick_feedback();
-        // TODO: RE-Adaptar a extrusión dual
+        // TODO: RE-Adaptar a extrusiï¿½n dual
 //#ifdef WITBOX_DUAL
 //    currentMenu = select_extruder_unload;
 //#else
