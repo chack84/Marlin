@@ -14,10 +14,11 @@
 
 #ifdef LEVEL_PLATE_POINTS_CORNERS
 	  void set_pageShowInfo(int value);
-	  void set_ChangeScreen(boolean state);
+	  //void set_ChangeScreen(boolean state);
 	  void lcd_control_level_plate_points(void);
 	  void lcd_level_bed_cooling(void);
 	  void lcd_level_bed(void);
+	  void lcd_level_bed_start(void);
 #endif
 
 #ifdef DOGLCD

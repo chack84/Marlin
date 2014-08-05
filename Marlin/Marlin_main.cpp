@@ -2964,18 +2964,14 @@ void process_commands()
     case 700: // Script for level the build plate going to 3 points
         {
 SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
-            set_ChangeScreen(true);
+            //set_ChangeScreen(true);
 
-            while(!lcd_clicked()){
-            	set_pageShowInfo(0);
-            	lcd_update();
-            }
 
-            set_pageShowInfo(1);
-            set_ChangeScreen(true);
+            //set_pageShowInfo(1);
+            //set_ChangeScreen(true);
     //        st_synchronize();
            //hacer homing
-
+/*
           saved_feedrate = feedrate;
           saved_feedmultiply = feedmultiply;
           feedmultiply = 100;
@@ -3042,16 +3038,24 @@ SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
           previous_millis_cmd = millis();
           endstops_hit_on_purpose();
 
-            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
-            // prob 1
+          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+*/
+/*
+          while(!lcd_clicked()){
+          	set_pageShowInfo(0);
+          	//manage_inactivity();
+          	//lcd_update();
+          }
+*/
+	//set_pageShowInfo(0);
 
           	int points_x[4] = { 10, X_MAX_POS - 10, X_MAX_POS - 10,             10 };
           	int points_y[4] = { 10,             10, Y_MAX_POS - 10, Y_MAX_POS - 10 };
 
           	for (int8_t i = 0; i < 4;i++) {
-              set_ChangeScreen(true);
+              //set_ChangeScreen(true);
               set_pageShowInfo(i + 1);
+              currentMenu = lcd_level_bed;
 SERIAL_ECHO("Nivelando punto ");
 SERIAL_ECHOLN(i);
           		do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
@@ -3060,11 +3064,12 @@ SERIAL_ECHOLN(i);
 
             	while(!lcd_clicked()){
               		//manage_inactivity();
+            		//lcd_update();
             	}
 
               if (i == 3) {
                 set_pageShowInfo(i + 2);
-                set_ChangeScreen(true);
+                //set_ChangeScreen(true);
 
                 do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
                 do_blocking_move_to(10, 10, current_position[Z_AXIS]);
