@@ -511,6 +511,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_PROBE_OFFSET_RANGE_MAX -5
 #endif
 
+#define PREHEAT_FAN_SPEED 255
 #define FILAMENT_CHANGE_TEMPERATURE 220
 #define FILAMENT_EXTRUSION_LENGTH 60
 #define FILAMENT_UNLOAD_EXTRUSION_LENGTH 10

@@ -58,6 +58,7 @@ static void lcd_control_motion_menu();
 static void lcd_filament_menu();
 static void lcd_unload_material_extrud_1();
 static void lcd_load_material_extrud_1();
+static void lcd_abort_preheating_1();
 static void lcd_insert_and_press_1();
 #ifdef DOGLCD
 static void lcd_set_contrast();
@@ -787,15 +788,26 @@ static void lcd_load_material_extrud_1()
     int tTarget=int(degTargetHotend(0) + 0.5);
 
     // TODO: RE-Adaptar menu al tipo de pantalla
-    lcd_implementation_drawmenu_generic(0, PSTR(MSG_HEATING), ' ', ' ');
-    //lcd.setCursor(3, 2);
-    //lcd_printPGM(PSTR(MSG_HEATING));
+    //lcd_implementation_drawmenu_generic(0, PSTR(MSG_HEATING), ' ', ' ');
+#ifdef DOGLCD
+    u8g.setPrintPos(3, 2);
+    lcd_printPGM(PSTR(MSG_HEATING));
+    u8g.setPrintPos(5, 3);
+	u8g.print(LCD_STR_THERMOMETER[0]);
+	lcd_printPGM(itostr3(tHotend));
+	u8g.print('/');
+	lcd_printPGM(itostr3left(tTarget));
+	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+#else
+    lcd.setCursor(3, 2);
+    lcd_printPGM(PSTR(MSG_HEATING));
     lcd.setCursor(5, 3);
     lcd.print(LCD_STR_THERMOMETER[0]);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+#endif
 
     if ((degHotend(0) > degTargetHotend(0)) )
     {
@@ -833,16 +845,28 @@ static void lcd_unload_material_extrud_1()
     END_MENU();
 
     // TODO: RE-Adaptar menu al tipo de pantalla
-    int tHotend=int(degHotend(0) + 0.5);
-    int tTarget=int(degTargetHotend(0) + 0.5);
-    lcd.setCursor(3, 2);
-    lcd_printPGM(PSTR(MSG_HEATING));
-    lcd.setCursor(5, 3);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	int tHotend=int(degHotend(0) + 0.5);
+	int tTarget=int(degTargetHotend(0) + 0.5);
+
+	#ifdef DOGLCD
+		u8g.setPrintPos(3, 2);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		u8g.setPrintPos(5, 3);
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		lcd_printPGM(itostr3(tHotend));
+		u8g.print('/');
+		lcd_printPGM(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#else
+		lcd.setCursor(3, 2);
+	    lcd_printPGM(PSTR(MSG_HEATING));
+	    lcd.setCursor(5, 3);
+	    lcd.print(LCD_STR_THERMOMETER[0]);
+	    lcd.print(itostr3(tHotend));
+	    lcd.print('/');
+	    lcd.print(itostr3left(tTarget));
+	    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
 
     if (degHotend(0) > degTargetHotend(0))
     {
