@@ -1011,7 +1011,7 @@
 	#define MSG_LOAD "Cargar"
 	#define MSG_UNLOAD "Descargar"
 	#define MSG_ABORT "Atras"
-	#define MSG_PRE_EXTRUD "Insert & Press"
+	#define MSG_PRE_EXTRUD "Inserte y presione"
 	#define MSG_EXTRUDING "Extruyendo..."
 	#define MSG_LENGTH "Logitud:"
 	#define MSG_RETRACTING "Retrayendo"

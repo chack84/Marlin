@@ -19,6 +19,8 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool LCDKeepAlive = false;
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -773,8 +775,7 @@ static void lcd_filament_menu()
 // Load
 static void lcd_load_material_extrud_1()
 {
-    //Settings
-    //FilamentMenuActive = true;
+    LCDKeepAlive = true;
 
     ////CALENTANDO/HEATING
     setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
@@ -784,32 +785,33 @@ static void lcd_load_material_extrud_1()
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
     END_MENU();
 
+    lcdDrawUpdate = 2;
+
     int tHotend=int(degHotend(0) + 0.5);
     int tTarget=int(degTargetHotend(0) + 0.5);
 
-    // TODO: RE-Adaptar menu al tipo de pantalla
-    //lcd_implementation_drawmenu_generic(0, PSTR(MSG_HEATING), ' ', ' ');
-#ifdef DOGLCD
-    u8g.setPrintPos(3, 2);
-    lcd_printPGM(PSTR(MSG_HEATING));
-    u8g.setPrintPos(5, 3);
-	u8g.print(LCD_STR_THERMOMETER[0]);
-	lcd_printPGM(itostr3(tHotend));
-	u8g.print('/');
-	lcd_printPGM(itostr3left(tTarget));
-	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-#else
-    lcd.setCursor(3, 2);
-    lcd_printPGM(PSTR(MSG_HEATING));
-    lcd.setCursor(5, 3);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-#endif
+	#ifdef DOGLCD
+    	u8g.setPrintPos(6, 24);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		u8g.setPrintPos(6, 35);
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(' ');
+		u8g.print(itostr3(tHotend));
+		u8g.print('/');
+		u8g.print(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#else
+		lcd.setCursor(3, 2);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		lcd.setCursor(5, 3);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(itostr3(tHotend));
+		lcd.print('/');
+		lcd.print(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
 
-    if ((degHotend(0) > degTargetHotend(0)) )
+    if ((degHotend(0) >= degTargetHotend(0)) )
     {
         lcd_quick_feedback();
         currentMenu = lcd_insert_and_press_1;
@@ -826,36 +828,36 @@ static void lcd_insert_and_press_1()
 }
 static void lcd_abort_preheating_1()
 {
-	//FilamentMenuActive = false;
+	LCDKeepAlive = false;
 	lcd_filament_menu();
 }
 
 // UNLOAD *************************************************************************
 static void lcd_unload_material_extrud_1()
 {
- //Settings
-
-    //FilamentMenuActive = true;
+    LCDKeepAlive = true;
     fanSpeed = PREHEAT_FAN_SPEED;
     ////CALENTANDO/HEATING
 	setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
+
+	lcdDrawUpdate = 2;
 
     START_MENU();
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
     END_MENU();
 
-    // TODO: RE-Adaptar menu al tipo de pantalla
 	int tHotend=int(degHotend(0) + 0.5);
 	int tTarget=int(degTargetHotend(0) + 0.5);
 
 	#ifdef DOGLCD
-		u8g.setPrintPos(3, 2);
+		u8g.setPrintPos(6, 24);
 		lcd_printPGM(PSTR(MSG_HEATING));
-		u8g.setPrintPos(5, 3);
+		u8g.setPrintPos(6, 35);
 		u8g.print(LCD_STR_THERMOMETER[0]);
-		lcd_printPGM(itostr3(tHotend));
+		u8g.print(' ');
+		u8g.print(itostr3(tHotend));
 		u8g.print('/');
-		lcd_printPGM(itostr3left(tTarget));
+		u8g.print(itostr3left(tTarget));
 		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 	#else
 		lcd.setCursor(3, 2);
@@ -868,18 +870,13 @@ static void lcd_unload_material_extrud_1()
 	    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 	#endif
 
-    if (degHotend(0) > degTargetHotend(0))
+    if (degHotend(0) >= degTargetHotend(0))
     {
         lcd_quick_feedback();
-        // TODO: RE-Adaptar a extrusi�n dual
-//#ifdef WITBOX_DUAL
-//    currentMenu = select_extruder_unload;
-//#else
-	currentMenu = lcd_filament_menu;
-//#endif //WITBOX_DUAL
-	//-- Ejecutar gcode
-	active_extruder = 0;
-	enquecommand_P(PSTR("M702"));
+        currentMenu = lcd_filament_menu;
+        LCDKeepAlive = false;
+        active_extruder = 0;
+        enquecommand_P(PSTR("M702"));
     }
 }
 
@@ -1375,6 +1372,13 @@ void lcd_update()
         }
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        if (LCDKeepAlive)										//Keep lcd alive
+			timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        /*
+		if (ChangeScreen && pageShowInfo!=5){						//Leveling platform
+			lcd_level_bed();
+			currentMenu=lcd_level_bed;
+		}*/
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
