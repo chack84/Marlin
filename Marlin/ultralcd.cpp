@@ -19,11 +19,12 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool LCDKeepAlive;
+
 #ifdef LEVEL_PLATE_POINTS_CORNERS
-	int  pageShowInfo=0;
+	int  levelPlatePoint=0;
 	boolean ChangeScreen=false;
-	void set_pageShowInfo(int value){  pageShowInfo=value;  }
-	void set_ChangeScreen(boolean state) { ChangeScreen=state;}
+	void set_levelPlatePoint(int value){  levelPlatePoint=value;  }
 #endif
 
 #ifdef ULTIPANEL
@@ -773,8 +774,7 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
 #ifdef LEVEL_PLATE_POINTS_CORNERS
-    //TODO RE-Añadir constantes de nivelar base
-    MENU_ITEM(function, "Nivelar base", lcd_control_level_plate_points);
+    MENU_ITEM(function, MSG_LEVEL_PLATE, lcd_control_level_plate_points);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
     END_MENU();
@@ -978,22 +978,18 @@ void lcd_sdcard_menu()
 #ifdef LEVEL_PLATE_POINTS_CORNERS
 void lcd_control_level_plate_points() {
 	setTargetHotend(0,0);
+	LCDKeepAlive = true;
 
 	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
-SERIAL_ECHOLN("Leveling...");
-		//currentMenu=lcd_level_bed_start;
 		fanSpeed = PREHEAT_FAN_SPEED;
 		enquecommand_P(PSTR("G28"));
-		pageShowInfo=0;
+		enquecommand_P(PSTR("M700"));
+		levelPlatePoint=0;
 
-		lcd_implementation_clear();
 		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ', ' ');
-		currentMenu = lcd_level_bed_start;
+		currentMenu = lcd_level_bed;
 	}
 	else{
-SERIAL_ECHOLN("Temperature too high.");
-		//lcd.clear();
-		lcd_implementation_clear();
 		currentMenu = lcd_level_bed_cooling;
 		fanSpeed = COOLDOWN_FAN_SPEED;
 	}
@@ -1001,133 +997,78 @@ SERIAL_ECHOLN("Temperature too high.");
 }
 void lcd_level_bed_cooling()
 {
-SERIAL_ECHOLN("lcd_level_bed_cooling");
-	while(!lcd_clicked()) {
-		manage_heater();
-		//lcd.setCursor(0, 0);
-		//lcd_printPGM(PSTR(MSG_LP_COOL_1));
+	START_MENU();
+	MENU_ITEM(back, MSG_ABORT, lcd_abort_level_bed);
+	END_MENU();
+
+	lcdDrawUpdate = 2;
+	manage_heater();
+	#ifdef DOGLCD
+		u8g.setPrintPos(6, 25);
+		u8g.print(MSG_LP_COOL_1);
+		u8g.setPrintPos(6, 36);
+		u8g.print(MSG_LP_COOL_2);
+		u8g.print(" ");
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(itostr3(int(degHotend(0))));
+		u8g.print(LCD_STR_DEGREE);
+	#else
+		lcd.setCursor(0, 1);
 		lcd_printPGM(PSTR(MSG_LP_COOL_1));
-		//lcd.setCursor(0, 1);
-		//lcd_printPGM(PSTR(MSG_LP_COOL_2));
+		lcd.setCursor(0, 2);
 		lcd_printPGM(PSTR(MSG_LP_COOL_2));
-		/*
-		lcd.setCursor(6, 1);
+		lcd.setCursor(6, 2);
 		lcd.print(LCD_STR_THERMOMETER[0]);
 		lcd.print(itostr3(int(degHotend(0))));
 		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-		lcd.setCursor(0, 3);
-		lcd_printPGM(PSTR(MSG_LP_COOL_3));
-		*/
-		currentMenu = lcd_level_bed_cooling;
+	#endif
 
-		if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
-			currentMenu=lcd_control_level_plate_points;
-			fanSpeed = PREHEAT_FAN_SPEED;
-			lcd_quick_feedback();
-			lcd_update();
-			break;
-		}
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		currentMenu=lcd_control_level_plate_points;
+		fanSpeed = PREHEAT_FAN_SPEED;
+		lcd_quick_feedback();
+		lcd_update();
 	}
+}
 
-	lcd_quick_feedback();
-	if(degHotend(0)>LEVEL_PLATE_TEMP_PROTECTION) {
-		//lcd.clear();
+void lcd_abort_level_bed() {
+		LCDKeepAlive = false;
 		lcd_implementation_clear();
 		fanSpeed = COOLDOWN_FAN_SPEED;
-		currentMenu = lcd_status_screen;
-		lcd_implementation_status_screen();
-	}
-}
-
-void lcd_level_bed_start() {
-SERIAL_ECHOLN("lcd_level_bed_start");
-	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ', ' ');
-	//currentMenu = lcd_level_bed_start;
-	//lcd_update();
-/*
-	while (!lcd_clicked()) {
-		//START_MENU();
-		//MENU_ITEM(back, MSG_ABORT, lcd_control_menu);
-		//MENU_ITEM(function, MSG_LP_INTRO, lcd_level_bed_start);
-		//END_MENU();
-		//lcd_printPGM(PSTR(MSG_LP_INTRO));
-
-	}*/
-while (!lcd_clicked()) {
-
-}
-	//pageShowInfo = 1;
-	currentMenu = lcd_level_bed;
-	//lcdDrawUpdate = 1;
-	enquecommand_P(PSTR("M700"));
+		currentMenu = lcd_control_menu;
 }
 
 void lcd_level_bed()
 {
-SERIAL_ECHOLN("lcd_level_bed");
-    //if(ChangeScreen){
-    	//lcd.clear();
-    	lcd_implementation_clear();
+	if (levelPlatePoint == 0) {
+		lcdDrawUpdate=2;
+		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ', ' ');
+		lcd_implementation_drawmenu_generic(1, PSTR(MSG_LP_PRESS), ' ', ' ');
+	}
+	else if (levelPlatePoint <= 4) {
+		#ifdef DOGLCD
+			u8g.setPrintPos(6, 14);
+			u8g.print(MSG_LP_POINT);
+			u8g.print(' ');
+			u8g.print(itostr3left(levelPlatePoint));
+		#else
+			lcd.setCursor(0, 1);
+			lcd_printPGM(PSTR(MSG_LP_POINT));
+			lcd.print(itostr3left(levelPlatePoint));
+		#endif
 
-        if (pageShowInfo == 0) {
-SERIAL_ECHOLN("lcd_level_bed con info = 0");
-           //lcd.setCursor(0, 1);
-           //lcd_printPGM(PSTR(MSG_LP_INTRO));
-        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ',' ');
+	  lcdDrawUpdate = 1;
+	}
+	else {
+		lcdDrawUpdate = 2;
+		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_FINISH), ' ', ' ');
+		LCDKeepAlive = false;
+		delay(1200);
 
-
-            //lcd_implementation_drawmenu_generic(0, PSTR("Press to start"), ' ', ' ');
-            //currentMenu = lcd_level_bed;
-            //lcdDrawUpdate = 1;
-            //ChangeScreen=false;
-        }
-        else if (pageShowInfo <= 4) {
-//SERIAL_ECHOLN("lcd_level_bed con info > 0");
-        	//lcd_printPGM(PSTR(MSG_LP_CORNERS));
-        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_CORNERS), ' ',' ');
-        	//lcd_implementation_drawstatic(PSTR(MSG_LP_CORNERS));
-        	lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_CORNERS), ' ', ' ');
-
-        	//char *point = strcat("Punto ", itostr3left(pageShowInfo));
-        	//lcd_implementation_drawmenu_generic(1, PSTR("Punto "), ' ',' ');
-        	//char pointInt[10];
-			//sprintf(pointInt, "%d", pageShowInfo);
-			//char pointString[30] = "Point ";
-			//strcat(pointString, pointInt);
-//SERIAL_ECHOLN(pointString);
-			//lcd_implementation_drawmenu_generic(1, pointInt, ' ', ' ');
-        	/*
-          lcd.setCursor(0, 1);
-          lcd_printPGM(PSTR(MSG_LP_CORNERS));
-          lcd.setCursor(0, 2);
-          lcd_printPGM(PSTR("Punto "));
-          lcd.print(itostr3left(pageShowInfo));*/
-
-		  lcdDrawUpdate = 1;
-          currentMenu = lcd_level_bed;
-          //todo RE-Mirar si podemos quitar el ChangeScreen este
-          //ChangeScreen = false;
-        }
-        else {
-          //lcd.setCursor(0, 1);
-          //lcd_printPGM(PSTR(MSG_LP_5));
-        	//lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_5), ' ',' ');
-        	//lcd_implementation_drawstatic(PSTR(MSG_LP_5));
-
-        	lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_5), ' ', ' ');
-        	lcdDrawUpdate = 1;
-
-          //ChangeScreen=false;
-          delay(1200);
-
-          encoderPosition = 0;
-          //lcd.clear();
-          lcd_implementation_clear();
-          currentMenu = lcd_status_screen;
-          lcd_status_screen();
-          pageShowInfo=0;
-        }
-    //}
+		encoderPosition = 0;
+		lcd_implementation_clear();
+		currentMenu = lcd_status_screen;
+	}
 }
 #endif //LEVEL_PLATE_POINTS_CORNERS
 
@@ -1406,6 +1347,8 @@ void lcd_update()
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
         if (LCD_CLICKED)
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        if (LCDKeepAlive)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
 

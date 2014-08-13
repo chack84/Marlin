@@ -2963,117 +2963,30 @@ void process_commands()
 #ifdef LEVEL_PLATE_POINTS_CORNERS
     case 700: // Script for level the build plate going to 3 points
         {
-SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
-            //set_ChangeScreen(true);
+			while(!lcd_clicked()){
 
-
-            //set_pageShowInfo(1);
-            //set_ChangeScreen(true);
-    //        st_synchronize();
-           //hacer homing
-/*
-          saved_feedrate = feedrate;
-          saved_feedmultiply = feedmultiply;
-          feedmultiply = 100;
-          previous_millis_cmd = millis();
-
-          enable_endstops(true);
-
-          for(int8_t i=0; i < NUM_AXIS; i++) {
-            destination[i] = current_position[i];
-          }
-          feedrate = 0.0;
-          home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
-
-          #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-          if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-            HOMEAXIS(Z);
-          }
-          #endif
-
-          if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
-          {
-          HOMEAXIS(X);
-
-          }
-
-          if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-            HOMEAXIS(Y);
-          }
-
-          #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
-          if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-            HOMEAXIS(Z);
-          }
-          #endif
-
-          if(code_seen(axis_codes[X_AXIS]))
-          {
-            if(code_value_long() != 0) {
-              current_position[X_AXIS]=code_value()+add_homeing[0];
-            }
-          }
-
-          if(code_seen(axis_codes[Y_AXIS])) {
-            if(code_value_long() != 0) {
-              current_position[Y_AXIS]=code_value()+add_homeing[1];
-            }
-          }
-
-          if(code_seen(axis_codes[Z_AXIS])) {
-            if(code_value_long() != 0) {
-              current_position[Z_AXIS]=code_value()+add_homeing[2];
-            }
-          }
-
-          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
-
-          #ifdef ENDSTOPS_ONLY_FOR_HOMING
-            enable_endstops(false);
-          #endif
-
-          feedrate = saved_feedrate;
-          feedmultiply = saved_feedmultiply;
-          previous_millis_cmd = millis();
-          endstops_hit_on_purpose();
-
-          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-*/
-/*
-          while(!lcd_clicked()){
-          	set_pageShowInfo(0);
-          	//manage_inactivity();
-          	//lcd_update();
-          }
-*/
-	//set_pageShowInfo(0);
+			}
 
           	int points_x[4] = { 10, X_MAX_POS - 10, X_MAX_POS - 10,             10 };
           	int points_y[4] = { 10,             10, Y_MAX_POS - 10, Y_MAX_POS - 10 };
 
           	for (int8_t i = 0; i < 4;i++) {
-              //set_ChangeScreen(true);
-              set_pageShowInfo(i + 1);
-              currentMenu = lcd_level_bed;
-SERIAL_ECHO("Nivelando punto ");
-SERIAL_ECHOLN(i);
+          		set_levelPlatePoint(i + 1);
+
           		do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
             	do_blocking_move_to(points_x[i], points_y[i], current_position[Z_AXIS]);
             	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
 
             	while(!lcd_clicked()){
-              		//manage_inactivity();
-            		//lcd_update();
             	}
 
-              if (i == 3) {
-                set_pageShowInfo(i + 2);
-                //set_ChangeScreen(true);
+				if (i == 3) {
+				set_levelPlatePoint(i + 2);
+				//set_ChangeScreen(true);
 
-                do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-                do_blocking_move_to(10, 10, current_position[Z_AXIS]);
-              }
+				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+				do_blocking_move_to(10, 10, current_position[Z_AXIS]);
+				}
           	}
         }
         break;

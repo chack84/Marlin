@@ -263,31 +263,16 @@
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
-// todo arreglar los lenguajes de menús
-	#define MSG_FILAMENT "Filament"
-	#define MSG_LEVEL_PLATE "Level plate"
-	#define MSG_PREHEAT "Preheat"
-	#define MSG_JOG "Jog"
-	#define MSG_LOAD "Load"
-	#define MSG_UNLOAD "Unload"
-	#define MSG_ABORT "Abort"
-	#define MSG_PRE_EXTRUD "Insert & Press"
-	#define MSG_EXTRUDING "Extruding..."
-	#define MSG_LENGTH "Length:"
-	#define MSG_RETRACTING "Retracting"
-	#define MSG_WELLCOME "bq Witbox"
-	#define MSG_LP_INTRO "  Leveling plate...    Press to start   "
-	#define MSG_LP_1 " Adjust first point  & Press the button"
-	#define MSG_LP_2 "Adjust second point  & Press the button"
-	#define MSG_LP_3 "Adjust third point   & Press the button"
-	#define MSG_LP_4 "     Is it ok?         Press to end"
-	#define MSG_LP_5 " Plate leveled!"
-	#define MSG_LP_COOL_1 "Cooling..."
-	#define MSG_LP_COOL_2 "Temp:"
-	#define MSG_LP_COOL_3 "   Press to abort"
-
-  #ifdef LEVEL_PLATE_POINTS_CORNERS
-	  #define MSG_LP_CORNERS "Adjusting point "
+	#ifdef LEVEL_PLATE_POINTS_CORNERS
+		#define MSG_LEVEL_PLATE "Level plate"
+		#define MSG_ABORT "Back"
+		#define MSG_LP_PRESS "Press to start"
+		#define MSG_LP_INTRO "Leveling base..."
+		#define MSG_LP_POINT " Leveling point"
+		#define MSG_LP_FINISH "Plate leveled!"
+		#define MSG_LP_COOL_1 "Cooling..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 " Press to exit"
 	#endif
 
 #endif
@@ -1100,32 +1085,18 @@
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
-	// todo arreglar los menus
-	#define MSG_FILAMENT "Filamento"
-	#define MSG_LEVEL_PLATE "Nivelar base"
-	#define MSG_START_SCRIPT "Start script"
-	#define MSG_PREHEAT "Calentar"
-	#define MSG_JOG "Mover"
-	#define MSG_LOAD "Cargar"
-	#define MSG_UNLOAD "Descargar"
-	#define MSG_ABORT "Atras"
-	#define MSG_PRE_EXTRUD "Insert & Press"
-	#define MSG_EXTRUDING "Extruyendo..."
-	#define MSG_LENGTH "Logitud:"
-	#define MSG_RETRACTING "Retrayendo"
-	#define MSG_WELLCOME "bq Witbox"
-	#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
-	#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
-	#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
-	#define MSG_LP_3 " Nivela el punto 3     Pulsa la rueda"
-	#define MSG_LP_4 "Comprueba el centro  Pulsa para acabar"
-	#define MSG_LP_5 "!Base nivelada!"
-	#define MSG_LP_COOL_1 "Enfriando..."
-	#define MSG_LP_COOL_2 "Temp:"
-	#define MSG_LP_COOL_3 "  Pulsa para salir"
+	//#define MSG_START_SCRIPT "Start script"
 
 	#ifdef LEVEL_PLATE_POINTS_CORNERS
-		#define MSG_LP_CORNERS "Nivelando esquinas"
+		#define MSG_LEVEL_PLATE "Nivelar base"
+		#define MSG_ABORT "Atras"
+		#define MSG_LP_PRESS "Pulsa para empezar"
+		#define MSG_LP_INTRO "Nivelando la base..."
+		#define MSG_LP_POINT "Nivelando punto"
+		#define MSG_LP_FINISH "!Base nivelada!"
+		#define MSG_LP_COOL_1 "Enfriando..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 "Pulsa para salir"
 	#endif
 
 #endif
