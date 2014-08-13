@@ -26,6 +26,11 @@
 // This determines the communication speed of the printer
 // This determines the communication speed of the printer
 #define BAUDRATE 115200
+<<<<<<< HEAD
+=======
+
+#define LANGUAGE_CHOICE 5
+>>>>>>> ChangeFilament
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
@@ -511,6 +516,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_PROBE_OFFSET_RANGE_MAX -5
 #endif
 
+#define PREHEAT_FAN_SPEED 255
+#define FILAMENT_CHANGE_TEMPERATURE 180
+#define FILAMENT_EXTRUSION_LENGTH 60
+#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 10
+#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
@@ -556,7 +566,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel

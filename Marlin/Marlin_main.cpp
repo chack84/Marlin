@@ -3018,6 +3018,37 @@ void process_commands()
       #endif
     }
     break;
+    case 701:
+		SERIAL_ECHOLN(" --LOAD-- ");
+
+		st_synchronize();
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+		//-- Extruir!
+		current_position[E_AXIS] += FILAMENT_EXTRUSION_LENGTH;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+		st_synchronize();
+
+		break;
+
+	case 702:
+		SERIAL_ECHOLN(" --UNLOAD-- ");
+
+		st_synchronize();
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+		//-- Extruir!
+		current_position[E_AXIS] += FILAMENT_UNLOAD_EXTRUSION_LENGTH;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+		st_synchronize();
+
+		//-- Sacar!
+		current_position[E_AXIS] -= FILAMENT_UNLOAD_RETRACTION_LENGTH;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+		st_synchronize();
+
+		break;
+
     case 999: // M999: Restart after being stopped
       Stopped = false;
       lcd_reset_alert_level();
