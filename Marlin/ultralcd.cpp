@@ -1442,11 +1442,6 @@ void lcd_update()
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         if (LCDKeepAlive)										//Keep lcd alive
 			timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
-        /*
-		if (ChangeScreen && pageShowInfo!=5){						//Leveling platform
-			lcd_level_bed();
-			currentMenu=lcd_level_bed;
-		}*/
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
