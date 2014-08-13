@@ -279,6 +279,18 @@
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
+	#ifdef LEVEL_PLATE_POINTS_CORNERS
+		#define MSG_LEVEL_PLATE "Level plate"
+		#define MSG_ABORT "Back"
+		#define MSG_LP_PRESS "Press to start"
+		#define MSG_LP_INTRO "Leveling base..."
+		#define MSG_LP_POINT " Leveling point"
+		#define MSG_LP_FINISH "Plate leveled!"
+		#define MSG_LP_COOL_1 "Cooling..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 " Press to exit"
+	#endif
+
 #endif
 
 
@@ -1104,6 +1116,20 @@
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+
+	//#define MSG_START_SCRIPT "Start script"
+
+	#ifdef LEVEL_PLATE_POINTS_CORNERS
+		#define MSG_LEVEL_PLATE "Nivelar base"
+		#define MSG_ABORT "Atras"
+		#define MSG_LP_PRESS "Pulsa para empezar"
+		#define MSG_LP_INTRO "Nivelando la base..."
+		#define MSG_LP_POINT "Nivelando punto"
+		#define MSG_LP_FINISH "!Base nivelada!"
+		#define MSG_LP_COOL_1 "Enfriando..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 "Pulsa para salir"
+	#endif
 
 #endif
 

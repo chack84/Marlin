@@ -377,7 +377,25 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
+#define LEVEL_PLATE_POINTS_CORNERS
+
+#define EXTRUSION_SPEED 300
+	#define LEVEL_PLATE_TEMP_PROTECTION 60
+	#define Change_Filament_Target_Temp 220
+
+	#define FILAMENT_EXTRUSION_LENGTH 60
+	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 10
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
+
+    #define PREHEAT_HOTEND_TEMP 200
+    #define PREHEAT_FAN_SPEED 255
+    #define COOLDOWN_FAN_SPEED 255
+
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(LEVEL_PLATE_POINTS_CORNERS)
+  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -432,8 +450,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
-
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points

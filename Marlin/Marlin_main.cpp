@@ -857,6 +857,22 @@ static void axis_is_at_home(int axis) {
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
 }
 
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(LEVEL_PLATE_POINTS_CORNERS)
+
+static void do_blocking_move_to(float x, float y, float z) {
+    float oldFeedRate = feedrate;
+
+    feedrate = XY_TRAVEL_SPEED;
+
+    current_position[X_AXIS] = x;
+    current_position[Y_AXIS] = y;
+    current_position[Z_AXIS] = z;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    feedrate = oldFeedRate;
+}
+
 #ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef AUTO_BED_LEVELING_GRID
 static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
@@ -942,20 +958,6 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-static void do_blocking_move_to(float x, float y, float z) {
-    float oldFeedRate = feedrate;
-
-    feedrate = XY_TRAVEL_SPEED;
-
-    current_position[X_AXIS] = x;
-    current_position[Y_AXIS] = y;
-    current_position[Z_AXIS] = z;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = oldFeedRate;
-}
-
 static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z) {
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
@@ -1034,6 +1036,8 @@ static float probe_pt(float x, float y, float z_before) {
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif  // #if defined(ENABLE_AUTO_BED_LEVELING) || defined(LEVEL_PLATE_POINTS_CORNERS)
+
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
@@ -2955,6 +2959,38 @@ void process_commands()
     }
     break;
     #endif //DUAL_X_CARRIAGE
+
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+    case 700: // Script for level the build plate going to 3 points
+        {
+			while(!lcd_clicked()){
+
+			}
+
+          	int points_x[4] = { 10, X_MAX_POS - 10, X_MAX_POS - 10,             10 };
+          	int points_y[4] = { 10,             10, Y_MAX_POS - 10, Y_MAX_POS - 10 };
+
+          	for (int8_t i = 0; i < 4;i++) {
+          		set_levelPlatePoint(i + 1);
+
+          		do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+            	do_blocking_move_to(points_x[i], points_y[i], current_position[Z_AXIS]);
+            	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+
+            	while(!lcd_clicked()){
+            	}
+
+				if (i == 3) {
+				set_levelPlatePoint(i + 2);
+				//set_ChangeScreen(true);
+
+				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+				do_blocking_move_to(10, 10, current_position[Z_AXIS]);
+				}
+          	}
+        }
+        break;
+#endif
 
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
