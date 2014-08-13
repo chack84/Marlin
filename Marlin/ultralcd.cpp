@@ -785,8 +785,6 @@ static void lcd_load_material_extrud_1()
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
     END_MENU();
 
-    lcdDrawUpdate = 2;
-
     int tHotend=int(degHotend(0) + 0.5);
     int tTarget=int(degTargetHotend(0) + 0.5);
 
@@ -839,8 +837,6 @@ static void lcd_unload_material_extrud_1()
     fanSpeed = PREHEAT_FAN_SPEED;
     ////CALENTANDO/HEATING
 	setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
-
-	lcdDrawUpdate = 2;
 
     START_MENU();
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
