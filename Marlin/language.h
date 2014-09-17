@@ -170,6 +170,13 @@
 	#define MSG_PREHEAT_ABS012 "Preheat ABS All"
 	#define MSG_PREHEAT_ABS_BEDONLY "Preheat ABS Bed"
 	#define MSG_PREHEAT_ABS_SETTINGS "Preheat ABS conf"
+	#define MSG_PREHEAT_FILAFLEX "Preheat Filaflex"
+	#define MSG_PREHEAT_FILAFLEX0 "Preheat Filaflex 1"
+	#define MSG_PREHEAT_FILAFLEX1 "Preheat Filaflex 2"
+	#define MSG_PREHEAT_FILAFLEX2 "Preheat Filaflex 3"
+	#define MSG_PREHEAT_FILAFLEX012 "Preheat Filaflex All"
+	#define MSG_PREHEAT_FILAFLEX_BEDONLY "Preheat Filaflex Bed"
+	#define MSG_PREHEAT_FILAFLEX_SETTINGS "Preheat Filaflex conf"
 	#define MSG_COOLDOWN "Cooldown"
 	#define MSG_SWITCH_PS_ON "Switch power on"
 	#define MSG_SWITCH_PS_OFF "Switch power off"
@@ -263,6 +270,27 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+
+	#define MSG_FILAMENT "Filament"
+	#define MSG_LOAD "Load"
+	#define MSG_UNLOAD "Unload"
+	#define MSG_ABORT "Back"
+	#define MSG_PRE_EXTRUD "Insert & Press"
+	#define MSG_EXTRUDING "Extruding..."
+	#define MSG_LENGTH "Length:"
+	#define MSG_RETRACTING "Retracting"
+
+	#ifdef LEVEL_PLATE_POINTS_CORNERS
+		#define MSG_LEVEL_PLATE "Level plate"
+		#define MSG_ABORT "Back"
+		#define MSG_LP_PRESS "Press to start"
+		#define MSG_LP_INTRO "Leveling base..."
+		#define MSG_LP_POINT " Leveling point"
+		#define MSG_LP_FINISH "Plate leveled!"
+		#define MSG_LP_COOL_1 "Cooling..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 " Press to exit"
+	#endif
 
 #endif
 
@@ -676,6 +704,13 @@
 	#define MSG_PREHEAT_ABS012 "Precal. ABS Todo"
 	#define MSG_PREHEAT_ABS_BEDONLY "Precal. ABS Base"
 	#define MSG_PREHEAT_ABS_SETTINGS "Ajustar temp. ABS"
+	#define MSG_PREHEAT_FILAFLEX "Precalentar Filaflex"
+	#define MSG_PREHEAT_FILAFLEX0 "Precalentar Filaflex 1"
+	#define MSG_PREHEAT_FILAFLEX1 "Precalentar Filaflex 2"
+	#define MSG_PREHEAT_FILAFLEX2 "Precalentar Filaflex 3"
+	#define MSG_PREHEAT_FILAFLEX012 "Precalentar Filaflex All"
+	#define MSG_PREHEAT_FILAFLEX_BEDONLY "Precalentar Filaflex Bed"
+	#define MSG_PREHEAT_FILAFLEX_SETTINGS "Precalentar Filaflex conf"
 	#define MSG_COOLDOWN "Enfriar"
 	#define MSG_SWITCH_PS_ON "Switch Power On"
 	#define MSG_SWITCH_PS_OFF "Switch Power Off"
@@ -778,6 +813,27 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+
+	#define MSG_FILAMENT "Filamento"
+	#define MSG_LOAD "Cargar"
+	#define MSG_UNLOAD "Descargar"
+	#define MSG_ABORT "Atras"
+	#define MSG_PRE_EXTRUD "Inserte y presione"
+	#define MSG_EXTRUDING "Extruyendo..."
+	#define MSG_LENGTH "Logitud:"
+	#define MSG_RETRACTING "Retrayendo"
+	
+	#ifdef LEVEL_PLATE_POINTS_CORNERS
+		#define MSG_LEVEL_PLATE "Nivelar base"
+		#define MSG_ABORT "Atras"
+		#define MSG_LP_PRESS "Pulsa para empezar"
+		#define MSG_LP_INTRO "Nivelando la base..."
+		#define MSG_LP_POINT "Nivelando punto"
+		#define MSG_LP_FINISH "!Base nivelada!"
+		#define MSG_LP_COOL_1 "Enfriando..."
+		#define MSG_LP_COOL_2 "Temp:"
+		#define MSG_LP_COOL_3 "Pulsa para salir"
+	#endif
 
 #endif
 

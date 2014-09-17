@@ -318,6 +318,9 @@ void Config_ResetDefault()
     absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+    filaFlexPreheatHotendTemp = FILAFLEX_PREHEAT_HOTEND_TEMP;
+    filaFlexPreheatHPBTemp = FILAFLEX_PREHEAT_HPB_TEMP;
+    filaFlexPreheatFanSpeed = FILAFLEX_PREHEAT_FAN_SPEED;
 #endif
 #ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;

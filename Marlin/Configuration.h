@@ -32,7 +32,9 @@
 
 // This determines the communication speed of the printer
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
+#define BAUDRATE 115200
+
+#define LANGUAGE_CHOICE 5
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
@@ -82,7 +84,7 @@
 // 999 = Leapfrog
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 33
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -141,8 +143,8 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 6
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
 
@@ -317,9 +319,9 @@ your extruder heater takes 2 minutes to hit the target on heating.
 #endif
 
 #ifdef ENDSTOPPULLUPS
-  #define ENDSTOPPULLUP_XMAX
-  #define ENDSTOPPULLUP_YMAX
-  #define ENDSTOPPULLUP_ZMAX
+  //#define ENDSTOPPULLUP_XMAX
+  //#define ENDSTOPPULLUP_YMAX
+  //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
   #define ENDSTOPPULLUP_ZMIN
@@ -356,7 +358,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
@@ -370,9 +372,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 205
+#define X_MAX_POS 190
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 190
 #define Y_MIN_POS 0
 #define Z_MAX_POS 200
 #define Z_MIN_POS 0
@@ -382,8 +384,26 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
+#define LEVEL_PLATE_POINTS_CORNERS
+
+#define EXTRUSION_SPEED 300
+	#define LEVEL_PLATE_TEMP_PROTECTION 60
+	#define Change_Filament_Target_Temp 220
+
+	#define FILAMENT_EXTRUSION_LENGTH 60
+	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 10
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
+
+    #define PREHEAT_HOTEND_TEMP 200
+    #define PREHEAT_FAN_SPEED 255
+    #define COOLDOWN_FAN_SPEED 255
+
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(LEVEL_PLATE_POINTS_CORNERS)
+  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -439,8 +459,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
-
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
@@ -487,16 +505,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 200, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,3200,116}  // default steps per unit for ultimaker {78.7402,78.7402,200*8/3,760*1.1}920
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 2, 40}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -521,6 +539,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_PROBE_OFFSET_RANGE_MAX -5
 #endif
 
+#define PREHEAT_FAN_SPEED 255
+#define FILAMENT_CHANGE_TEMPERATURE 180
+#define FILAMENT_EXTRUSION_LENGTH 60
+#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 10
+#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
@@ -542,6 +565,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
+#define FILAFLEX_PREHEAT_HOTEND_TEMP 235
+#define FILAFLEX_PREHEAT_HPB_TEMP 0
+#define FILAFLEX_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
+
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
@@ -561,7 +589,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel

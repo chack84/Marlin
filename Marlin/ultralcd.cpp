@@ -19,6 +19,17 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool LCDKeepAlive = false;
+
+int filaFlexPreheatHotendTemp;
+int filaFlexPreheatHPBTemp;
+int filaFlexPreheatFanSpeed;
+
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+	int  levelPlatePoint=0;
+	boolean ChangeScreen=false;
+	void set_levelPlatePoint(int value){  levelPlatePoint=value;  }
+#endif
 
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
@@ -56,6 +67,11 @@ static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
+static void lcd_filament_menu();
+static void lcd_unload_material_extrud_1();
+static void lcd_load_material_extrud_1();
+static void lcd_abort_preheating_1();
+static void lcd_insert_and_press_1();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
@@ -425,6 +441,15 @@ void lcd_preheat_abs0()
     setWatch(); // heater sanity check timer
 }
 
+void lcd_preheat_filaflex0()
+{
+    setTargetHotend0(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
 #if TEMP_SENSOR_1 != 0 //2nd extruder preheat
 void lcd_preheat_pla1()
 {
@@ -440,6 +465,15 @@ void lcd_preheat_abs1()
     setTargetHotend1(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex1()
+{
+    setTargetHotend1(filaflexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -460,6 +494,15 @@ void lcd_preheat_abs2()
     setTargetHotend2(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex2()
+{
+    setTargetHotend2(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -487,6 +530,17 @@ void lcd_preheat_abs012()
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
+
+void lcd_preheat_filaflex012()
+{
+    setTargetHotend0(filaFlexPreheatHotendTemp);
+    setTargetHotend1(filaFlexPreheatHotendTemp);
+    setTargetHotend2(filaFlexPreheatHotendTemp);
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
 #endif //more than one extruder present
 
 void lcd_preheat_pla_bedonly()
@@ -501,6 +555,14 @@ void lcd_preheat_abs_bedonly()
 {
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_filaflex_bedonly()
+{
+    setTargetBed(filaFlexPreheatHPBTemp);
+    fanSpeed = filaFlexPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
@@ -545,6 +607,26 @@ static void lcd_preheat_abs_menu()
     END_MENU();
 }
 
+static void lcd_preheat_filaflex_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX0, lcd_preheat_filaflex0);
+#if TEMP_SENSOR_1 != 0 //2 extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX1, lcd_preheat_filaflex1);
+#endif //2 extruder preheat
+#if TEMP_SENSOR_2 != 0 //3 extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX2, lcd_preheat_filaflex2);
+#endif //3 extruder preheat
+#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 //all extruder preheat
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX012, lcd_preheat_filaflex012);
+#endif //2 extruder preheat
+#if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX_BEDONLY, lcd_preheat_filaflex_bedonly);
+#endif
+    END_MENU();
+}
+
 void lcd_cooldown()
 {
     setTargetHotend0(0);
@@ -571,9 +653,11 @@ static void lcd_prepare_menu()
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_FILAFLEX, lcd_preheat_filaflex_menu);
   #else
     MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
     MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+    MENU_ITEM(function, MSG_PREHEAT_FILAFLEX, lcd_preheat_filaflex0);
   #endif
 #endif
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
@@ -586,6 +670,7 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+    MENU_ITEM(submenu, MSG_FILAMENT, lcd_filament_menu);
     END_MENU();
 }
 
@@ -749,6 +834,129 @@ static void lcd_move_menu()
     END_MENU();
 }
 
+static void lcd_filament_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    // TODO: RE-Adaptarlo a la dual
+    //#ifdef WITBOX_DUAL
+	//	MENU_ITEM(submenu, MSG_LOAD, select_extruder_load);
+	//	MENU_ITEM(submenu, MSG_UNLOAD, select_extruder_unload);
+	//#else
+		MENU_ITEM(submenu, MSG_LOAD, lcd_load_material_extrud_1);
+		MENU_ITEM(submenu, MSG_UNLOAD, lcd_unload_material_extrud_1);
+	//#endif //WITBOX_DUAL
+    END_MENU();
+}
+
+
+// Load
+static void lcd_load_material_extrud_1()
+{
+    LCDKeepAlive = true;
+
+    ////CALENTANDO/HEATING
+    setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
+    fanSpeed = PREHEAT_FAN_SPEED;
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+
+    int tHotend=int(degHotend(0) + 0.5);
+    int tTarget=int(degTargetHotend(0) + 0.5);
+
+	#ifdef DOGLCD
+    	lcdDrawUpdate = 2;
+    	u8g.setPrintPos(6, 24);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		u8g.setPrintPos(6, 35);
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(' ');
+		u8g.print(itostr3(tHotend));
+		u8g.print('/');
+		u8g.print(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#else
+		lcd.setCursor(3, 2);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		lcd.setCursor(5, 3);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(itostr3(tHotend));
+		lcd.print('/');
+		lcd.print(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
+
+    if ((degHotend(0) >= degTargetHotend(0)) )
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_insert_and_press_1;
+    }
+}
+
+static void lcd_insert_and_press_1()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    active_extruder = 0;
+    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701"));
+    END_MENU();
+}
+static void lcd_abort_preheating_1()
+{
+	LCDKeepAlive = false;
+	lcd_filament_menu();
+}
+
+// UNLOAD *************************************************************************
+static void lcd_unload_material_extrud_1()
+{
+    LCDKeepAlive = true;
+    fanSpeed = PREHEAT_FAN_SPEED;
+    ////CALENTANDO/HEATING
+	setTargetHotend0(FILAMENT_CHANGE_TEMPERATURE);
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+	int tHotend=int(degHotend(0) + 0.5);
+	int tTarget=int(degTargetHotend(0) + 0.5);
+
+	#ifdef DOGLCD
+    	lcdDrawUpdate = 2;
+		u8g.setPrintPos(6, 24);
+		lcd_printPGM(PSTR(MSG_HEATING));
+		u8g.setPrintPos(6, 35);
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(' ');
+		u8g.print(itostr3(tHotend));
+		u8g.print('/');
+		u8g.print(itostr3left(tTarget));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#else
+		lcd.setCursor(3, 2);
+	    lcd_printPGM(PSTR(MSG_HEATING));
+	    lcd.setCursor(5, 3);
+	    lcd.print(LCD_STR_THERMOMETER[0]);
+	    lcd.print(itostr3(tHotend));
+	    lcd.print('/');
+	    lcd.print(itostr3left(tTarget));
+	    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
+
+    if (degHotend(0) >= degTargetHotend(0))
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_filament_menu;
+        LCDKeepAlive = false;
+        active_extruder = 0;
+        enquecommand_P(PSTR("M702"));
+    }
+}
+
 static void lcd_control_menu()
 {
     START_MENU();
@@ -765,6 +973,9 @@ static void lcd_control_menu()
 #ifdef EEPROM_SETTINGS
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
+#endif
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+    MENU_ITEM(function, MSG_LEVEL_PLATE, lcd_control_level_plate_points);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
     END_MENU();
@@ -974,6 +1185,114 @@ void lcd_sdcard_menu()
     }
     END_MENU();
 }
+
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+void lcd_control_level_plate_points() {
+	setTargetHotend(0,0);
+	LCDKeepAlive = true;
+
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		levelPlatePoint=0;
+		currentMenu = lcd_level_bed;
+		lcd_update();
+
+		fanSpeed = PREHEAT_FAN_SPEED;
+		enquecommand_P(PSTR("G28"));
+		enquecommand_P(PSTR("M700"));
+	}
+	else{
+		currentMenu = lcd_level_bed_cooling;
+		fanSpeed = COOLDOWN_FAN_SPEED;
+	}
+
+}
+void lcd_level_bed_cooling()
+{
+	START_MENU();
+	MENU_ITEM(back, MSG_ABORT, lcd_abort_level_bed);
+	END_MENU();
+
+	manage_heater();
+	#ifdef DOGLCD
+		lcdDrawUpdate = 2;
+		u8g.setPrintPos(6, 25);
+		u8g.print(MSG_LP_COOL_1);
+		u8g.setPrintPos(6, 36);
+		u8g.print(MSG_LP_COOL_2);
+		u8g.print(" ");
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(itostr3(int(degHotend(0))));
+		u8g.print(LCD_STR_DEGREE);
+	#else
+		lcd.setCursor(0, 1);
+		lcd_printPGM(PSTR(MSG_LP_COOL_1));
+		lcd.setCursor(0, 2);
+		lcd_printPGM(PSTR(MSG_LP_COOL_2));
+		lcd.setCursor(6, 2);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(itostr3(int(degHotend(0))));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
+
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		currentMenu=lcd_control_level_plate_points;
+		fanSpeed = PREHEAT_FAN_SPEED;
+		lcd_quick_feedback();
+		lcd_update();
+	}
+}
+
+void lcd_abort_level_bed() {
+		LCDKeepAlive = false;
+		lcd_implementation_clear();
+		fanSpeed = COOLDOWN_FAN_SPEED;
+		currentMenu = lcd_control_menu;
+}
+
+void lcd_level_bed()
+{
+	if (levelPlatePoint == 0) {
+		lcd_implementation_clear();
+		lcdDrawUpdate=2;
+		START_MENU();
+		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ', ' ');
+		lcd_implementation_drawmenu_generic(1, PSTR(MSG_LP_PRESS), ' ', ' ');
+		END_MENU();
+	}
+	else if (levelPlatePoint <= 4) {
+		#ifdef DOGLCD
+			u8g.setPrintPos(6, 14);
+			u8g.print(MSG_LP_POINT);
+			u8g.print(' ');
+			u8g.print(itostr3left(levelPlatePoint));
+		#else
+			lcd_implementation_clear();
+			lcd.setCursor(0, 1);
+			lcd_printPGM(PSTR(MSG_LP_POINT));
+			lcd.print(' ');
+			lcd.print(itostr3left(levelPlatePoint));
+		#endif
+
+	  lcdDrawUpdate = 1;
+	}
+	else if (levelPlatePoint == 5) {
+		lcd_implementation_clear();
+		lcdDrawUpdate = 2;
+		START_MENU();
+		lcd_implementation_drawmenu_generic(1, PSTR(MSG_LP_FINISH), ' ', ' ');
+		END_MENU();
+		LCDKeepAlive = false;
+		levelPlatePoint++;
+	}
+	else {
+		delay(2000);
+
+		encoderPosition = 0;
+		lcd_implementation_clear();
+		currentMenu = lcd_status_screen;
+	}
+}
+#endif //LEVEL_PLATE_POINTS_CORNERS
 
 #define menu_edit_type(_type, _name, _strFunc, scale) \
     void menu_edit_ ## _name () \
@@ -1250,6 +1569,8 @@ void lcd_update()
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
         if (LCD_CLICKED)
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        if (LCDKeepAlive)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
 
