@@ -43,6 +43,10 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
   
+  extern int filaFlexPreheatHotendTemp;
+  extern int filaFlexPreheatHPBTemp;
+  extern int filaFlexPreheatFanSpeed;
+
   extern bool cancel_heatup;
     
   void lcd_buzz(long duration,uint16_t freq);

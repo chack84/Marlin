@@ -16,7 +16,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(fm, SAV MkI)" //Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -25,7 +25,7 @@
 
 // This determines the communication speed of the printer
 // This determines the communication speed of the printer
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
@@ -62,7 +62,6 @@
 // 81 = Printrboard (AT90USB1286)
 // 82 = Brainwave (AT90USB646)
 // 83 = SAV Mk-I (AT90USB1286)
-// 84 = Teensy++2.0 (AT90USB1286) // CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
 // 9  = Gen3+
 // 70 = Megatronics
 // 701= Megatronics v2.0
@@ -74,16 +73,15 @@
 // 88 = 5DPrint D8 Driver Board
 
 #ifndef MOTHERBOARD
-//[FMC]#define MOTHERBOARD 7
-#define MOTHERBOARD 83
+#define MOTHERBOARD 88
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-#define CUSTOM_MENDEL_NAME "SAV MkI"
+// #define CUSTOM_MENDEL_NAME "This Mendel"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-#define MACHINE_UUID "0e3df20b-f1c8-45d7-a2e5-d33a6f96d9ed"
+// #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
 #define EXTRUDERS 1
@@ -133,13 +131,11 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-// 70 is 500C thermistor for Pico hot end
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 1
-
+#define TEMP_SENSOR_BED 12
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -224,7 +220,10 @@
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+#define MAX_BED_POWER 175 // limits duty cycle to bed; 255=full current
+// This limit is set to 175 by default in the Makibox configuration and it can adjusted
+// to increase the heat up rate. However, if changed, user must be aware of the safety concerns
+// of drawing too much current from the power supply.
 
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
@@ -253,44 +252,6 @@
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-/*================== Thermal Runaway Protection ==============================
-This is a feature to protect your printer from burn up in flames if it has
-a thermistor coming off place (this happened to a friend of mine recently and
-motivated me writing this feature).
-
-The issue: If a thermistor come off, it will read a lower temperature than actual.
-The system will turn the heater on forever, burning up the filament and anything
-else around.
-
-After the temperature reaches the target for the first time, this feature will 
-start measuring for how long the current temperature stays below the target 
-minus _HYSTERESIS (set_temperature - THERMAL_RUNAWAY_PROTECTION_HYSTERESIS).
-
-If it stays longer than _PERIOD, it means the thermistor temperature
-cannot catch up with the target, so something *may be* wrong. Then, to be on the
-safe side, the system will he halt.
-
-Bear in mind the count down will just start AFTER the first time the 
-thermistor temperature is over the target, so you will have no problem if
-your extruder heater takes 2 minutes to hit the target on heating.
-
-*/
-// If you want to enable this feature for all your extruder heaters,
-// uncomment the 2 defines below:
-
-// Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
-
-// If you want to enable this feature for your bed heater,
-// uncomment the 2 defines below:
-
-// Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-//===========================================================================
-
-
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
@@ -312,9 +273,9 @@ your extruder heater takes 2 minutes to hit the target on heating.
 #endif
 
 #ifdef ENDSTOPPULLUPS
-  //#define ENDSTOPPULLUP_XMAX
-  //#define ENDSTOPPULLUP_YMAX
-  //#define ENDSTOPPULLUP_ZMAX
+  #define ENDSTOPPULLUP_XMAX
+  #define ENDSTOPPULLUP_YMAX
+  #define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
   #define ENDSTOPPULLUP_ZMIN
@@ -322,8 +283,7 @@ your extruder heater takes 2 minutes to hit the target on heating.
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop. - vinciBot
-//const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop - T800
+const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
@@ -347,13 +307,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_Y false
 #define DISABLE_Z false
 #define DISABLE_E false // For all extruders
-#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
-//#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-//#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false  - T800 (false)
-#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -368,11 +325,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 205
+#define X_MAX_POS 110
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 150
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 86
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -482,16 +439,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 200, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {1500, 1500, 120, 0}  // set the homing speeds (mm/min)   ***** MakiBox A6 *****
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,3200,116}  // default steps per unit for ultimaker {78.7402,78.7402,200*8/3,760*1.1}920
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 2, 40}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {400, 400, 400, 163}     // default steps per unit for ***** MakiBox A6 *****
+#define DEFAULT_MAX_FEEDRATE          {60, 60, 20, 45}         // (mm/sec)    
+#define DEFAULT_MAX_ACCELERATION      {2000,2000,30,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -523,12 +480,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//[FMC]#define EEPROM_SETTINGS
 #define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//[FMC]#define EEPROM_CHITCHAT
-#define EEPROM_CHITCHAT
+//#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
@@ -539,18 +494,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
-#define FILAFLEX_PREHEAT_HOTEND_TEMP 235
-#define FILAFLEX_PREHEAT_HPB_TEMP 0
-#define FILAFLEX_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
-
-
 //LCD and SD support
-//#define ULTRA_LCD  //general lcd support, also 16x2
+//#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//[FMC]#define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-//#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
+#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
@@ -574,7 +522,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 // The RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
@@ -676,13 +624,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
-//[FMC]#define SAV_3DLCD
-//#define SAV_3DLCD
-#ifdef SAV_3DLCD
-   #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
-   #define NEWPANEL
-   #define ULTIPANEL
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+//#define SR_LCD
+#ifdef SR_LCD
+   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
+   //#define NEWPANEL
 #endif
 
 
@@ -703,8 +649,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define LCD_WIDTH 20
     #define LCD_HEIGHT 5
   #else
-    #define LCD_WIDTH 20
-    #define LCD_HEIGHT 4
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
   #endif
   #endif
 #endif
@@ -767,6 +713,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
 //
+
+#define DIGIPOT_I2C
+
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
 
