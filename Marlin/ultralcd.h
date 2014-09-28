@@ -12,6 +12,14 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
 
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+	  void set_levelPlatePoint(int value);
+	  void lcd_control_level_plate_points(void);
+	  void lcd_level_bed_cooling(void);
+	  void lcd_level_bed(void);
+	  void lcd_abort_level_bed(void);
+#endif
+
 #ifdef DOGLCD
   extern int lcd_contrast;
   void lcd_setcontrast(uint8_t value);

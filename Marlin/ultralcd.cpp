@@ -25,6 +25,12 @@ int filaFlexPreheatHotendTemp;
 int filaFlexPreheatHPBTemp;
 int filaFlexPreheatFanSpeed;
 
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+	int  levelPlatePoint=0;
+	boolean ChangeScreen=false;
+	void set_levelPlatePoint(int value){  levelPlatePoint=value;  }
+#endif
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -959,6 +965,9 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+    MENU_ITEM(function, MSG_LEVEL_PLATE, lcd_control_level_plate_points);
+#endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
     END_MENU();
 }
@@ -1163,6 +1172,114 @@ void lcd_sdcard_menu()
     }
     END_MENU();
 }
+
+#ifdef LEVEL_PLATE_POINTS_CORNERS
+void lcd_control_level_plate_points() {
+	setTargetHotend(0,0);
+	LCDKeepAlive = true;
+
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		levelPlatePoint=0;
+		currentMenu = lcd_level_bed;
+		lcd_update();
+
+		fanSpeed = PREHEAT_FAN_SPEED;
+		enquecommand_P(PSTR("G28"));
+		enquecommand_P(PSTR("M700"));
+	}
+	else{
+		currentMenu = lcd_level_bed_cooling;
+		fanSpeed = COOLDOWN_FAN_SPEED;
+	}
+
+}
+void lcd_level_bed_cooling()
+{
+	START_MENU();
+	MENU_ITEM(back, MSG_ABORT, lcd_abort_level_bed);
+	END_MENU();
+
+	lcdDrawUpdate = 2;
+	manage_heater();
+	#ifdef DOGLCD
+		u8g.setPrintPos(6, 25);
+		u8g.print(MSG_LP_COOL_1);
+		u8g.setPrintPos(6, 36);
+		u8g.print(MSG_LP_COOL_2);
+		u8g.print(" ");
+		u8g.print(LCD_STR_THERMOMETER[0]);
+		u8g.print(itostr3(int(degHotend(0))));
+		u8g.print(LCD_STR_DEGREE);
+	#else
+		lcd.setCursor(0, 1);
+		lcd_printPGM(PSTR(MSG_LP_COOL_1));
+		lcd.setCursor(0, 2);
+		lcd_printPGM(PSTR(MSG_LP_COOL_2));
+		lcd.setCursor(6, 2);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(itostr3(int(degHotend(0))));
+		lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	#endif
+
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		currentMenu=lcd_control_level_plate_points;
+		fanSpeed = PREHEAT_FAN_SPEED;
+		lcd_quick_feedback();
+		lcd_update();
+	}
+}
+
+void lcd_abort_level_bed() {
+		LCDKeepAlive = false;
+		lcd_implementation_clear();
+		fanSpeed = COOLDOWN_FAN_SPEED;
+		currentMenu = lcd_control_menu;
+}
+
+void lcd_level_bed()
+{
+	if (levelPlatePoint == 0) {
+		lcd_implementation_clear();
+		lcdDrawUpdate=2;
+		START_MENU();
+		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_INTRO), ' ', ' ');
+		lcd_implementation_drawmenu_generic(1, PSTR(MSG_LP_PRESS), ' ', ' ');
+		END_MENU();
+	}
+	else if (levelPlatePoint <= 4) {
+		#ifdef DOGLCD
+			u8g.setPrintPos(6, 14);
+			u8g.print(MSG_LP_POINT);
+			u8g.print(' ');
+			u8g.print(itostr3left(levelPlatePoint));
+		#else
+			lcd_implementation_clear();
+			lcd.setCursor(0, 1);
+			lcd_printPGM(PSTR(MSG_LP_POINT));
+			lcd.print(' ');
+			lcd.print(itostr3left(levelPlatePoint));
+		#endif
+
+	  lcdDrawUpdate = 1;
+	}
+	else if (levelPlatePoint == 5) {
+		lcd_implementation_clear();
+		lcdDrawUpdate = 2;
+		START_MENU();
+		lcd_implementation_drawmenu_generic(0, PSTR(MSG_LP_FINISH), ' ', ' ');
+		END_MENU();
+		LCDKeepAlive = false;
+		levelPlatePoint++;
+	}
+	else {
+		delay(2000);
+
+		encoderPosition = 0;
+		lcd_implementation_clear();
+		currentMenu = lcd_status_screen;
+	}
+}
+#endif //LEVEL_PLATE_POINTS_CORNERS
 
 #define menu_edit_type(_type, _name, _strFunc, scale) \
     void menu_edit_ ## _name () \
@@ -1441,8 +1558,8 @@ void lcd_update()
         }
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
-        if (LCDKeepAlive)										//Keep lcd alive
-			timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        if (LCDKeepAlive)
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
